@@ -128,7 +128,7 @@ export function gasLessCall(
     parameters: Array<any>,
     addressFrom: string = '0x0000000000000000000000000000000000000000',
     blockNumber: string = 'latest'
-): any {
+): Promise<any> {
     return instance.methods[methodName](...parameters).call({ from: addressFrom }, blockNumber);
 }
 

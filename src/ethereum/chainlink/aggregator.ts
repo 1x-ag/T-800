@@ -13,7 +13,7 @@ export class AggregatorContract {
         this.instance = Web3Ethereum.createInstance(aggregatorAbi as AbiItem[], contractAddress);
     }
 
-    getPriceByBlock(blockNumber: string): string {
+    getPriceByBlock(blockNumber: string): Promise<string> {
         return gasLessCall(
             this.instance,
             'latestAnswer',
