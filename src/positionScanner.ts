@@ -25,16 +25,12 @@ export async function getPositionPrices(
         aggregatorParams.aggregator, config.RPC
     );
 
-    return Promise.all(
-        [
-            aggregator.getPriceByBlock(openPositionBlockNumber),
-            aggregator.getPriceByBlock('latest')
-        ]
-    ).then(
-        (prices: Array<string>) => {
-            return prices.map(x => tbn(x).div(aggregatorParams.decimals))
-        }
-    )
+    const prices: Array<string> = await Promise.all([
+        aggregator.getPriceByBlock(openPositionBlockNumber),
+        aggregator.getPriceByBlock('latest')
+    ]);
+
+    return prices.map(x => tbn(x).div(aggregatorParams.decimals))
 }
 
 export async function isReadyToClosePosition(
