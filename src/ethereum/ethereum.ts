@@ -54,9 +54,9 @@ export class Web3Ethereum {
                         resolve(transactionHash);
                     }
                 })
-                .on('confirmation', (num: any, hash: any) => {
+                .on('confirmation', (num: any, receipt: any) => {
                     if (num === confirmations) {
-                        resolve(hash);
+                        resolve(receipt.transactionHash);
                     }
                 });
         })

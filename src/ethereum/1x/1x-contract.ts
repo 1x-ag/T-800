@@ -75,7 +75,7 @@ export class OneXContract {
         });
     }
 
-    closePositionFor = async (params: ClosePositionFor) => {
+    closePositionFor = async (params: ClosePositionFor): Promise<string> => {
         const data = getCallData(
             this.instance,
             'closePositionFor',
@@ -89,5 +89,3 @@ export class OneXContract {
     };
 
 }
-
-module.exports = OneXContract;
