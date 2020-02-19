@@ -50,7 +50,12 @@ export async function liquidatePositionsFor(leverageToken: LeverageToken) {
 
         if (
             ready &&
-            !transactionQueue.processedTransactions.some(x => x.user === position.params.owner)
+            !transactionQueue.processedTransactions.some(
+                (x) => (
+                    x.user === position.params.owner &&
+                    x.blockNumber === position.blockNumber
+                )
+            )
         ) {
 
             const queryParams: ClosePositionFor = {
