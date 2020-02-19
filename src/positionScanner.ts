@@ -1,5 +1,4 @@
 import { OneXContract, OpenPosition, Event, ClosePosition } from "./ethereum/1x/1x-contract";
-import { BigNumber } from "bignumber.js";
 import tradePairs from "./traidingPairs.json"
 import { AggregatorContract } from "./ethereum/chainlink/aggregator";
 import { tbn } from "./ethereum/ethereum";
@@ -17,7 +16,7 @@ export async function getPositionPrices(
     openPositionBlockNumber: string,
     collateralToken: string,
     debtToken: string
-): Promise<BigNumber[]> {
+): Promise<string[]> {
 
     // @ts-ignore todo: make interface
     const aggregatorParams = tradePairs[debtToken][collateralToken];
@@ -25,32 +24,41 @@ export async function getPositionPrices(
         aggregatorParams.aggregator, config.RPC
     );
 
-    const prices: Array<string> = await Promise.all([
+    const prices: string[] = await Promise.all([
         aggregator.getPriceByBlock(openPositionBlockNumber),
         aggregator.getPriceByBlock('latest')
     ]);
 
-    return prices.map(x => tbn(x).div(aggregatorParams.decimals))
+    if (aggregatorParams.flipPrice) {
+        return prices.map(price =>
+            tbn(
+                Math.pow(aggregatorParams.decimals, 2)
+            )
+                .div(price)
+                .toString()
+        );
+    }
+    return prices;
 }
 
 export async function isReadyToClosePosition(
-    openPositionPrice: BigNumber,
-    currentPrice: BigNumber,
+    openPositionPrice: string,
+    currentPrice: string,
     stopLoss: string,
     takeProfit: string
 ) {
 
-    const stopLossPrice = openPositionPrice
+    const stopLossPrice = tbn(openPositionPrice)
         .times(stopLoss)
         .div(1e18);
 
-    const takeProfitPrice = openPositionPrice
+    const takeProfitPrice = tbn(openPositionPrice)
         .times(takeProfit)
         .div(1e18);
 
     return !!(
-        currentPrice.gte(takeProfitPrice) ||
-        currentPrice.lte(stopLossPrice)
+        tbn(currentPrice).gte(takeProfitPrice) ||
+        tbn(currentPrice).lte(stopLossPrice)
     );
 }
 
