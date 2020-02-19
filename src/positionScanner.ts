@@ -35,6 +35,7 @@ export async function getPositionPrices(
                 Math.pow(aggregatorParams.decimals, 2)
             )
                 .div(price)
+                .integerValue()
                 .toString()
         );
     }
