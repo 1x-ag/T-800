@@ -1,10 +1,10 @@
-import { OneXContract, OpenPosition, Event, ClosePosition } from "./ethereum/1x/1x-contract";
+import { ClosePosition, Event, OneXContract, OpenPosition } from "./ethereum/1x/1x-contract";
 import tradePairs from "./traidingPairs.json"
 import { AggregatorContract } from "./ethereum/chainlink/aggregator";
 import { tbn } from "./ethereum/ethereum";
 import config from "./config";
 
-export async function getOpenPositions(contract: OneXContract) {
+export async function getOpenPositions(contract: OneXContract): Promise<Event<OpenPosition>[]> {
     const [
         openPositionEvents,
         closePositionEvents
@@ -13,19 +13,19 @@ export async function getOpenPositions(contract: OneXContract) {
 }
 
 export async function getPositionPrices(
-    openPositionBlockNumber: string,
+    openPositionBlockNumber: number,
     collateralToken: string,
     debtToken: string
 ): Promise<string[]> {
 
     // @ts-ignore todo: make interface
-    const aggregatorParams = tradePairs[debtToken][collateralToken];
+    const aggregatorParams = tradePairs[collateralToken][debtToken];
     const aggregator = new AggregatorContract(
         aggregatorParams.aggregator, config.RPC
     );
 
     const prices: string[] = await Promise.all([
-        aggregator.getPriceByBlock(openPositionBlockNumber),
+        aggregator.getPriceByBlock(openPositionBlockNumber.toString()),
         aggregator.getPriceByBlock('latest')
     ]);
 
@@ -38,15 +38,16 @@ export async function getPositionPrices(
                 .toString()
         );
     }
+
     return prices;
 }
 
-export async function isReadyToClosePosition(
+export function isReadyToClosePosition(
     openPositionPrice: string,
     currentPrice: string,
     stopLoss: string,
     takeProfit: string
-) {
+): boolean {
 
     const stopLossPrice = tbn(openPositionPrice)
         .times(stopLoss)
@@ -65,24 +66,21 @@ export async function isReadyToClosePosition(
 function findOpenPositions(
     openPositionEvents: Event<OpenPosition>[],
     closePositionEvents: Event<ClosePosition>[]
-) {
+): Event<OpenPosition>[] {
 
     const closePositionOwners = closePositionEvents.map(x => x.params.owner);
     const openPositionOwners = openPositionEvents.map(x => x.params.owner);
 
     const notClosedPositions = [];
-    for (let i = 0; i < openPositionEvents.length; i++) {
+    for (const position of openPositionEvents) {
 
-        const owner = openPositionEvents[i].params.owner;
+        const owner = position.params.owner;
 
         const numOfOpenPositionsByUser = openPositionOwners.filter(x => x === owner).length;
         const numOfClosePositionsByUser = closePositionOwners.filter(x => x === owner).length;
 
-        if (
-            numOfOpenPositionsByUser !== numOfClosePositionsByUser
-        // transactionQueue.pendingAddress !== owner
-        ) {
-            notClosedPositions.push(openPositionEvents[i]);
+        if (numOfOpenPositionsByUser !== numOfClosePositionsByUser) {
+            notClosedPositions.push(position);
         }
     }
 

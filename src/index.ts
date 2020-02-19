@@ -1,8 +1,18 @@
-import { newJob} from "./cron";
+import { newJob } from "./cron";
+import { LeverageToken, liquidatePositionsFor } from "./positionLiquidator";
 
-const job = newJob( () => {
-    console.log('test')
-});
+const jobs = [
+    newJob(prepareJobFunction({
+        collateralToken: 'ETH',
+        debtToken: 'DAI',
+        leverage: '2'
+    }))
+];
 
-job.start();
+function prepareJobFunction(token: LeverageToken) {
+    return () => {
+        liquidatePositionsFor(token);
+    }
+}
 
+jobs.forEach(x => x.start());

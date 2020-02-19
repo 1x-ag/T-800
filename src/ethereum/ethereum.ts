@@ -2,7 +2,7 @@ import Web3 from 'web3';
 import { AbiItem, keccak256 } from 'web3-utils';
 import { Contract, EventData } from 'web3-eth-contract';
 import { Transaction } from 'web3-core';
-import { privateToAddress, addHexPrefix, toChecksumAddress } from 'ethereumjs-util';
+import { addHexPrefix, privateToAddress, toChecksumAddress } from 'ethereumjs-util';
 import { Transaction as Tx, TxData } from 'ethereumjs-tx';
 import { BigNumber } from 'bignumber.js'
 
@@ -14,8 +14,8 @@ export class Web3Ethereum {
         this.web3 = new Web3(rpc);
     }
 
-    static createInstance(abi: AbiItem[], address?: string, ): Contract {
-        return new Contract(abi, address);
+    createInstance(abi: AbiItem[], address?: string,): Contract {
+        return new this.web3.eth.Contract(abi, address);
     }
 
     getTransaction(txHash: string): Promise<Transaction> {
@@ -30,7 +30,7 @@ export class Web3Ethereum {
         return this.web3.eth.abi.encodeParameter(param, value)
     }
 
-    encodeParameters(types: Array<any>, value: any): string {
+    encodeParameters(types: any[], value: any): string {
         return this.web3.eth.abi.encodeParameters(types, value)
     }
 
@@ -38,7 +38,7 @@ export class Web3Ethereum {
         return this.web3.eth.abi.decodeParameter(types, hex)
     }
 
-    decodeParameters(types: Array<any>, hex: string): { [key: string]: any } {
+    decodeParameters(types: any[], hex: string): { [key: string]: any } {
         return this.web3.eth.abi.decodeParameters(types, hex)
     }
 
@@ -79,7 +79,7 @@ export class Web3Ethereum {
         const gas = data
 
             ? await this.web3.eth.estimateGas({ to, data, gas: 5000000, from, value })
-                .then((x: number): string => toHex(x))
+                .then((x: number): string => toHex(tbn(x).times(1.2)))
 
             : toHex(21000);
 
@@ -125,7 +125,7 @@ export function getEvents(instance: Contract, event: string): Promise<EventData[
 export function gasLessCall(
     instance: Contract,
     methodName: string,
-    parameters: Array<any>,
+    parameters: any[],
     addressFrom: string = '0x0000000000000000000000000000000000000000',
     blockNumber: string = 'latest'
 ): Promise<any> {

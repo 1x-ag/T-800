@@ -1,6 +1,8 @@
+import dotenv from 'dotenv';
+
 const isProduction = process.env.NODE_ENV === 'production';
 
-require('dotenv').config({
+dotenv.config({
     path: isProduction ? './.env' : './.env-dev'
 });
 

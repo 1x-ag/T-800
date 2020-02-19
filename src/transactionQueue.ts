@@ -6,10 +6,15 @@ export type TransactionQueueContract = {
     executeTransaction: (params: ClosePositionFor) => Promise<string>
 };
 
+export type ProcessedTransaction = {
+    user: string,
+    blockNumber: number
+};
+
 export class TransactionQueue {
 
     private transactions = new Subject<TransactionQueueContract>();
-    public pendingUsers: string[] = [];
+    public processedTransactions: ProcessedTransaction[] = [];
 
     constructor() {
         this.transactions.subscribe(
@@ -19,20 +24,22 @@ export class TransactionQueue {
                     const txHash = await contract.executeTransaction(contract.queryParams);
                     console.log("closePositionFor: ", txHash);
                 } catch (e) {
+                    // this.deleteUser(contract.queryParams.user)
                     console.log("Failed to close position: ", e);
                 }
-
-                this.deleteUser(contract.queryParams.user);
             }
         );
     }
 
-    publish(contract: TransactionQueueContract) {
-        this.pendingUsers.push(contract.queryParams.user);
+    publish(contract: TransactionQueueContract, blockNumber: number) {
+        this.processedTransactions.push({
+            user: contract.queryParams.user,
+            blockNumber
+        });
         this.transactions.next(contract);
     }
 
     private deleteUser(user: string): void {
-        this.pendingUsers = this.pendingUsers.filter(x => x !== user);
+        this.processedTransactions = this.processedTransactions.filter(x => x.user !== user);
     }
 }

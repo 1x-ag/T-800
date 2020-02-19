@@ -5,8 +5,9 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "npx ts-node ./src/index.ts",
+    "start:prod": "NODE_ENV=production npx ts-node ./src/index.ts",
     "start:debug": "npx ts-node-dev $NODE_DEBUG_OPTION --respawn --transpileOnly ./src/index.ts",
-    "build:prod": "NODE_ENV=production npx tsc",
+    "build": "npx tsc",
     "lint": "npx tslint -c tslint.json 'src/**/*.ts'"
   },
   "author": "",

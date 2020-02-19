@@ -1,4 +1,4 @@
-import { getEvents, Web3Ethereum, getCallData } from '../ethereum';
+import { getCallData, getEvents, Web3Ethereum } from '../ethereum';
 import { Contract } from 'web3-eth-contract';
 import { AbiItem } from 'web3-utils';
 import oneXAbi from './1x.abi.json';
@@ -30,7 +30,7 @@ export class OneXContract {
 
     private readonly privateKey: string;
     private readonly instance: Contract;
-    private readonly web3Ethereum: Web3Ethereum;
+    public readonly web3Ethereum: Web3Ethereum;
 
     constructor(
         contractAddress: string,
@@ -39,7 +39,7 @@ export class OneXContract {
     ) {
         this.privateKey = privateKey;
         this.web3Ethereum = new Web3Ethereum(connectionString);
-        this.instance = Web3Ethereum.createInstance(oneXAbi as AbiItem[], contractAddress);
+        this.instance = this.web3Ethereum.createInstance(oneXAbi as AbiItem[], contractAddress);
     }
 
     async getOpenPositionEvents(): Promise<Event<OpenPosition>[]> {
