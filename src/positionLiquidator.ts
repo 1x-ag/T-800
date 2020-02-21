@@ -23,6 +23,11 @@ export async function liquidatePositionsFor(leverageToken: LeverageToken) {
     const OneX = new OneXContract(contractAddress, config.PRIVATE_KEY, config.RPC);
 
     const openPositionEvents = await getOpenPositions(OneX);
+
+    // tslint:disable-next-line:no-console
+    console.debug(`Find ${ openPositionEvents.length } open positions for ` +
+    `${ leverageToken.leverage }x${ leverageToken.collateralToken }${ leverageToken.debtToken }`);
+
     for (const position of openPositionEvents) {
 
         if (
