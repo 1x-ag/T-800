@@ -20,16 +20,14 @@ export class TransactionQueue {
         this.transactions.subscribe(
             async (contract: TransactionQueueContract) => {
 
-                // tslint:disable-next-line:no-console
-
                 try {
                     const txHash = await contract.executeTransaction(contract.queryParams);
                     // tslint:disable-next-line:no-console
-                    console.log(`Success for ${contract.queryParams.user}: `, txHash);
+                    console.log(`Success for ${ contract.queryParams.user }: `, txHash);
                 } catch (e) {
                     // this.deleteUser(contract.queryParams.user)
                     // tslint:disable-next-line:no-console
-                    console.log(`Failed to close position for ${contract.queryParams.user}: `, e);
+                    console.log(`Failed to close position for ${ contract.queryParams.user }: `, e);
                 }
             }
         );

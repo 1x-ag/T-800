@@ -1,10 +1,10 @@
-import { CronJob } from "cron";
-
 const AVERAGE_BLOCK_TIME = 14;
-const WAIT_BLOCKS = 2;
+const WAIT_BLOCKS = 5;
 
-export function newJob(func: () => void): CronJob {
-    return new CronJob(
-        `*/${AVERAGE_BLOCK_TIME * WAIT_BLOCKS} * * * * *`,
-        func, undefined, false);
+export function newJob(func: () => void): { start: () => void } {
+    return {
+        start: () => {
+            setInterval(func, AVERAGE_BLOCK_TIME * WAIT_BLOCKS * 1000);
+        }
+    }
 }
