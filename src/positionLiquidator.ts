@@ -4,7 +4,7 @@ import config from './config';
 import { ClosePositionFor, OneXContract } from "./ethereum/1x/1x-contract";
 import { getOpenPositions, getPositionPrices, isReadyToClosePosition } from "./positionScanner";
 
-const holderOneAddress = "0xb818e074b6a91d8eabf1001343dd49b2b103ddf4";
+const holderOneAddress = "0x96930e5bbaa0a53019f601c6c5e2563c910988fd";
 const transactionQueue = new TransactionQueue();
 
 export type LeverageToken = {
@@ -44,8 +44,8 @@ export async function liquidatePositionsFor(leverageToken: LeverageToken) {
         const ready = isReadyToClosePosition(
             openPositionPrice,
             currentPrice,
-            position.params.takeProfit,
-            position.params.stopLoss
+            position.params.stopLoss,
+            position.params.takeProfit
         );
 
         if (

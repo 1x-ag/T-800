@@ -6,7 +6,7 @@
       },
       "aggregator": "0x037E8F2125bF532F3e228991e051c8A7253B642c",
       "decimals": 1e18,
-      "flipPrice": false
+      "flipPrice": true
     }
   }
 }
