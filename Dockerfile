@@ -1,13 +1,14 @@
-FROM node:12.10.0
-#FROM PYTHON:2.7
+FROM node:12.10.0 As build
 
 WORKDIR /home/node/app
-ADD dist .
-ADD package.json .
-ADD package-lock.json .
+COPY . .
+RUN npm install && npm run build
 
-RUN npm i
+FROM node:alpine
 
-EXPOSE 8545
+COPY --from=build /home/node/app /app/
 
-CMD [ "node", "index.js" ]
+ENV PRIVATE_KEY=
+ENV RPC=
+
+CMD ["node", "/app/dist/index.js"]

@@ -79,7 +79,7 @@ export class Web3Ethereum {
         const gas = data
 
             ? await this.web3.eth.estimateGas({ to, data, gas: 5000000, from, value })
-                .then((x: number): string => toHex(tbn(x).times(1.2)))
+                .then((x: number): string => toHex(tbn(x).times(1.2).integerValue()))
 
             : toHex(21000);
 
