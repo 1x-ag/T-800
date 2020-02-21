@@ -25,8 +25,8 @@ export async function liquidatePositionsFor(leverageToken: LeverageToken) {
     const openPositionEvents = await getOpenPositions(OneX);
 
     // tslint:disable-next-line:no-console
-    console.debug(`Find ${ openPositionEvents.length } open positions for ` +
-    `${ leverageToken.leverage }x${ leverageToken.collateralToken }${ leverageToken.debtToken }`);
+    console.log(`Find ${ openPositionEvents.length } open positions for ` +
+        `${ leverageToken.leverage }x${ leverageToken.collateralToken }${ leverageToken.debtToken }`);
 
     for (const position of openPositionEvents) {
 
@@ -73,5 +73,12 @@ export async function liquidatePositionsFor(leverageToken: LeverageToken) {
             };
             transactionQueue.publish(contract, position.blockNumber);
         }
+
+        // fast fix for Invalid JSON RPC response: "
+        await (new Promise((resolve) => {
+            setTimeout(() => {
+                resolve()
+            }, 2000)
+        }));
     }
 }

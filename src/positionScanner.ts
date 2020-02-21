@@ -58,7 +58,7 @@ export function isReadyToClosePosition(
         .times(takeProfit)
         .div(1e18);
 
-    return !!(
+    return (
         tbn(currentPrice).gte(takeProfitPrice) ||
         tbn(currentPrice).lte(stopLossPrice)
     );
