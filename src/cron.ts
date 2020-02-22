@@ -1,5 +1,5 @@
 const AVERAGE_BLOCK_TIME = 14;
-const WAIT_BLOCKS = 3;
+const WAIT_BLOCKS = 2;
 
 const defaultDelay = AVERAGE_BLOCK_TIME * WAIT_BLOCKS * 1000;
 let delay = defaultDelay;

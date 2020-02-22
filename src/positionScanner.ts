@@ -69,7 +69,15 @@ function findOpenPositions(
         const numOfOpenPositionsByUser = openPositionOwners.filter(x => x === owner).length;
         const numOfClosePositionsByUser = closePositionOwners.filter(x => x === owner).length;
 
-        if (numOfOpenPositionsByUser !== numOfClosePositionsByUser) {
+        const isLiquidationBotActivated = !(
+            position.params.stopLoss === '0' &&
+            position.params.takeProfit === '0'
+        );
+
+        if (
+            numOfOpenPositionsByUser !== numOfClosePositionsByUser &&
+            isLiquidationBotActivated
+        ) {
             notClosedPositions.push(position);
         }
     }

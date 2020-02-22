@@ -31,8 +31,12 @@ export async function liquidatePositionsFor(leverageToken: LeverageToken) {
     for (const position of openPositionEvents) {
 
         if (
-            position.params.takeProfit === '0' &&
-            position.params.stopLoss === '0'
+            transactionQueue.processedTransactions.some(
+                (x) => (
+                    x.user === position.params.owner &&
+                    x.blockNumber === position.blockNumber
+                )
+            )
         ) {
             continue;
         }
@@ -50,24 +54,17 @@ export async function liquidatePositionsFor(leverageToken: LeverageToken) {
             position.params.takeProfit
         );
 
-        if (
-            ready &&
-            !transactionQueue.processedTransactions.some(
-                (x) => (
-                    x.user === position.params.owner &&
-                    x.blockNumber === position.blockNumber
-                )
-            )
-        ) {
-
+        if (ready) {
             const queryParams: ClosePositionFor = {
                 user: position.params.owner,
                 newDelegate: holderOneAddress
             };
+
             const contract: TransactionQueueContract = {
                 queryParams,
                 executeTransaction: OneX.closePositionFor
             };
+
             transactionQueue.publish(contract, position.blockNumber);
         }
 
