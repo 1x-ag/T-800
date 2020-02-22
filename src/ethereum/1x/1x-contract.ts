@@ -1,4 +1,4 @@
-import { getCallData, getEvents, Web3Ethereum } from '../ethereum';
+import { gasLessCall, getCallData, getEvents, Web3Ethereum } from '../ethereum';
 import { Contract } from 'web3-eth-contract';
 import { AbiItem } from 'web3-utils';
 import oneXAbi from './1x.abi.json';
@@ -40,6 +40,14 @@ export class OneXContract {
         this.privateKey = privateKey;
         this.web3Ethereum = new Web3Ethereum(connectionString);
         this.instance = this.web3Ethereum.createInstance(oneXAbi as AbiItem[], contractAddress);
+    }
+
+    getHolderProxyAddress(address: string): Promise<string> {
+        return gasLessCall(
+            this.instance,
+            'holders',
+            [address]
+        );
     }
 
     async getOpenPositionEvents(): Promise<Event<OpenPosition>[]> {

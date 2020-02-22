@@ -5,7 +5,7 @@ const jobs = [
     newJob(prepareJobFunction({
         collateralToken: 'ETH',
         debtToken: 'DAI',
-        leverage: '2'
+        leverage: 2
     }))
 ];
 

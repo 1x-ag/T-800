@@ -1,16 +1,16 @@
 import { TransactionQueue, TransactionQueueContract } from "./transactionQueue";
-import tradingPairs from './traidingPairs.json';
+import { SupportedCurrencies, tradingPairs } from './tradingPairs';
 import config from './config';
 import { ClosePositionFor, OneXContract } from "./ethereum/1x/1x-contract";
-import { getOpenPositions, getPositionPrices, isReadyToClosePosition } from "./positionScanner";
+import { getOpenPositions, getPositionPnl, isReadyToClosePosition } from "./positionScanner";
 
-const holderOneAddress = "0x96930e5bbaa0a53019f601c6c5e2563c910988fd";
+const holderOneAddress = "0x66fad2551675a85f6525d91169c20cfb521dae33";
 const transactionQueue = new TransactionQueue();
 
 export type LeverageToken = {
-    collateralToken: string,
-    debtToken: string,
-    leverage: string
+    collateralToken: SupportedCurrencies,
+    debtToken: SupportedCurrencies,
+    leverage: number
 };
 
 export async function liquidatePositionsFor(leverageToken: LeverageToken) {
@@ -37,18 +37,15 @@ export async function liquidatePositionsFor(leverageToken: LeverageToken) {
             continue;
         }
 
-        const [
-            openPositionPrice,
-            currentPrice
-        ] = await getPositionPrices(
-            position.blockNumber,
+        const pnl = await getPositionPnl(
             leverageToken.collateralToken,
-            leverageToken.debtToken
+            leverageToken.debtToken,
+            leverageToken.leverage,
+            position.params.owner
         );
 
         const ready = isReadyToClosePosition(
-            openPositionPrice,
-            currentPrice,
+            pnl,
             position.params.stopLoss,
             position.params.takeProfit
         );

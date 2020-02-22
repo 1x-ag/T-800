@@ -1,8 +1,8 @@
 import { ClosePosition, Event, OneXContract, OpenPosition } from "./ethereum/1x/1x-contract";
-import tradePairs from "./traidingPairs.json"
-import { AggregatorContract } from "./ethereum/chainlink/aggregator";
+import { SupportedCurrencies, tokenAddresses, tradingPairs } from "./tradingPairs"
 import { tbn } from "./ethereum/ethereum";
 import config from "./config";
+import { HolderOneContract } from "./ethereum/holderOne/holderOne-contract";
 
 export async function getOpenPositions(contract: OneXContract): Promise<Event<OpenPosition>[]> {
     const [
@@ -12,55 +12,44 @@ export async function getOpenPositions(contract: OneXContract): Promise<Event<Op
     return findOpenPositions(openPositionEvents, closePositionEvents);
 }
 
-export async function getPositionPrices(
-    openPositionBlockNumber: number,
-    collateralToken: string,
-    debtToken: string
-): Promise<string[]> {
+export async function getPositionPnl(
+    collateralToken: SupportedCurrencies,
+    debtToken: SupportedCurrencies,
+    leverage: number,
+    holderAddress: string
+): Promise<string> {
 
-    // @ts-ignore todo: make interface
-    const aggregatorParams = tradePairs[collateralToken][debtToken];
-    const aggregator = new AggregatorContract(
-        aggregatorParams.aggregator, config.RPC
+    // @ts-ignore
+    const contractsParams = tradingPairs[collateralToken][debtToken];
+    const oneX = new OneXContract(
+        // @ts-ignore
+        contractsParams.leverage[leverage],
+        config.PRIVATE_KEY,
+        config.RPC
     );
 
-    const prices: string[] = await Promise.all([
-        aggregator.getPriceByBlock(openPositionBlockNumber.toString()),
-        aggregator.getPriceByBlock('latest')
-    ]);
+    const proxyAddress = await oneX.getHolderProxyAddress(holderAddress);
 
-    if (aggregatorParams.flipPrice) {
-        return prices.map(price =>
-            tbn(
-                Math.pow(aggregatorParams.decimals, 2)
-            )
-                .div(price)
-                .integerValue()
-                .toString()
-        );
-    }
+    const holderOne = new HolderOneContract(
+        proxyAddress, config.RPC
+    );
 
-    return prices;
+    return holderOne.getPnl(
+        tokenAddresses[collateralToken],
+        tokenAddresses[debtToken],
+        tbn(leverage)
+    );
 }
 
 export function isReadyToClosePosition(
-    openPositionPrice: string,
-    currentPrice: string,
+    pnl: string,
     stopLoss: string,
     takeProfit: string
 ): boolean {
 
-    const stopLossPrice = tbn(openPositionPrice)
-        .times(stopLoss)
-        .div(1e18);
-
-    const takeProfitPrice = tbn(openPositionPrice)
-        .times(takeProfit)
-        .div(1e18);
-
     return (
-        tbn(currentPrice).gte(takeProfitPrice) ||
-        tbn(currentPrice).lte(stopLossPrice)
+        tbn(pnl).gte(takeProfit) ||
+        tbn(pnl).lte(stopLoss)
     );
 }
 

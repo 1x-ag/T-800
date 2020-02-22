@@ -134,7 +134,7 @@ export function gasLessCall(
 
 export function getCallData(instance: Contract, methodName: string, parameters: any): string {
     if (!instance.methods[methodName])
-        throw new Error(`Method ${methodName} does not exist`);
+        throw new Error(`Method ${ methodName } does not exist`);
     return instance.methods[methodName](...parameters).encodeABI();
 }
 
