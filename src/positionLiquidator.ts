@@ -4,7 +4,7 @@ import config from './config';
 import { ClosePositionFor, OneXContract } from "./ethereum/1x/1x-contract";
 import { getOpenPositions, getPositionPnl, isReadyToClosePosition } from "./positionScanner";
 
-const holderOneAddress = "0x66fad2551675a85f6525d91169c20cfb521dae33";
+const holderOneAddress = "0x0938555ba79AFb0a45689F8429580F9618451827";
 const transactionQueue = new TransactionQueue();
 
 export type LeverageToken = {
