@@ -50,8 +50,8 @@ export class OneXContract {
         );
     }
 
-    async getOpenPositionEvents(): Promise<Event<OpenPosition>[]> {
-        const events = await getEvents(this.instance, 'OpenPosition');
+    async getOpenPositionEvents(fromBlockNumber: number | string = 0): Promise<Event<OpenPosition>[]> {
+        const events = await getEvents(this.instance, 'OpenPosition', fromBlockNumber);
         return events.map(x => {
             const params = x.returnValues;
             const openPosition: OpenPosition = {
@@ -68,8 +68,8 @@ export class OneXContract {
         });
     }
 
-    async getClosePositionEvents(): Promise<Event<ClosePosition>[]> {
-        const events = await getEvents(this.instance, 'ClosePosition');
+    async getClosePositionEvents(fromBlockNumber: number | string = 0): Promise<Event<ClosePosition>[]> {
+        const events = await getEvents(this.instance, 'ClosePosition', fromBlockNumber);
         return events.map(x => {
             const params = x.returnValues;
             return {

@@ -1,5 +1,6 @@
 import { newJob } from "./cron";
 import { LeverageToken, liquidatePositionsFor } from "./positionLiquidator";
+import { MemoryStorage } from "./storage/memoryStorage";
 
 const jobs = [
     newJob(prepareJobFunction({
@@ -9,12 +10,14 @@ const jobs = [
     }))
 ];
 
+const storage = new MemoryStorage();
+
 function prepareJobFunction(token: LeverageToken) {
     return async () => {
         const tokenName = `${ token.leverage }x${ token.collateralToken }${ token.debtToken }`;
         // tslint:disable-next-line:no-console
         console.debug(`Start ${tokenName} positions fetching ${(new Date()).toString()}\n`);
-        await liquidatePositionsFor(token);
+        await liquidatePositionsFor(token, storage);
         // tslint:disable-next-line:no-console
         console.debug(`End ${tokenName} positions fetching ${(new Date()).toString()}\n`);
     }

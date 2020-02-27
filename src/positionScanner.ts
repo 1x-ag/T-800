@@ -3,13 +3,30 @@ import { SupportedCurrencies, tokenAddresses, tradingPairs } from "./tradingPair
 import { tbn } from "./ethereum/ethereum";
 import config from "./config";
 import { HolderOneContract } from "./ethereum/holderOne/holderOne-contract";
+import { IStorage } from "./storage/IStorage";
 
-export async function getOpenPositions(contract: OneXContract): Promise<Event<OpenPosition>[]> {
+export async function getOpenPositions(contract: OneXContract, storage: IStorage): Promise<Event<OpenPosition>[]> {
+
+    const fromBlockNumber = storage.lastBlockNumber + 1;
+    const oldOpenPositionEventList = storage.getOpenPositionEvents();
+
     const [
         openPositionEvents,
         closePositionEvents
-    ] = await Promise.all([contract.getOpenPositionEvents(), contract.getClosePositionEvents()]);
-    return findOpenPositions(openPositionEvents, closePositionEvents);
+    ] = await Promise.all([
+        contract.getOpenPositionEvents(fromBlockNumber),
+        contract.getClosePositionEvents(fromBlockNumber)
+    ]);
+
+
+    const openPositionEventList = findOpenPositions(
+        openPositionEvents.concat(oldOpenPositionEventList),
+        closePositionEvents
+    );
+
+    storage.setOpenPositionEvents(openPositionEventList);
+
+    return openPositionEvents;
 }
 
 export async function getPositionPnl(
